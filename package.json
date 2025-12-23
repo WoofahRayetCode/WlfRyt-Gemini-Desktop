@@ -1,0 +1,20 @@
+{
+  "name": "gemini-desktop",
+  "version": "2025.12.23.0451",
+  "description": "Standalone desktop app for Google Gemini",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "version:stamp": "node -e \"const p=require('./package.json');const d=new Date();p.version=d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0')+'.'+d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0');require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))\"",
+    "generate-icons": "node generate-icons.js",
+    "package": "npm run version:stamp && electron-packager . \"Gemini Desktop\" --platform=win32 --arch=x64 --out=dist --overwrite --asar --icon=assets/icon.ico --ignore=\"\\.git\" --ignore=\"dist\" --ignore=\"\\.github\" --ignore=\"userData\" --ignore=\"settings\\.json\"",
+    "package:all": "npm run version:stamp && electron-packager . \"Gemini Desktop\" --all --out=dist --overwrite --asar --icon=assets/icon --ignore=\"\\.git\" --ignore=\"dist\" --ignore=\"\\.github\" --ignore=\"userData\" --ignore=\"settings\\.json\""
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-packager": "^17.1.2",
+    "sharp": "^0.34.5"
+  }
+}

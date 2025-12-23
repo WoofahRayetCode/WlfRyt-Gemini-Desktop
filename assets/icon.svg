@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Gradient for solid wolf (left) - cyan to purple -->
+    <linearGradient id="wolfGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff"/>
+      <stop offset="35%" style="stop-color:#4a90d9"/>
+      <stop offset="65%" style="stop-color:#7b68c9"/>
+      <stop offset="100%" style="stop-color:#9b4dca"/>
+    </linearGradient>
+    
+    <!-- Gradient for outline wolf (right) -->
+    <linearGradient id="outlineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff"/>
+      <stop offset="100%" style="stop-color:#5ba8e0"/>
+    </linearGradient>
+    
+    <!-- Shadow/depth gradient -->
+    <linearGradient id="shadowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a5568"/>
+      <stop offset="100%" style="stop-color:#2d3748"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- White rounded square background -->
+  <rect x="16" y="16" width="480" height="480" rx="72" ry="72" fill="#ffffff"/>
+  
+  <!-- LEFT WOLF (solid filled) - Geometric/low-poly style -->
+  <g>
+    <!-- Main head shape -->
+    <path d="
+      M 256 95
+      L 230 75
+      L 205 40
+      L 200 85
+      L 175 75
+      L 180 110
+      L 145 125
+      L 115 150
+      L 95 190
+      L 85 240
+      L 90 290
+      L 110 330
+      L 95 365
+      L 105 400
+      L 135 430
+      L 175 445
+      L 220 450
+      L 256 450
+      L 256 95
+      Z
+    " fill="url(#wolfGradient)"/>
+    
+    <!-- Darker ear interior -->
+    <path d="
+      M 205 40
+      L 190 55
+      L 195 90
+      L 200 85
+      L 205 40
+      Z
+    " fill="#2d3748" opacity="0.7"/>
+    
+    <!-- Geometric face segments for depth -->
+    <path d="
+      M 145 125
+      L 115 150
+      L 95 190
+      L 130 180
+      L 145 125
+      Z
+    " fill="#6b7fd9" opacity="0.5"/>
+    
+    <path d="
+      M 85 240
+      L 95 190
+      L 130 180
+      L 120 230
+      L 85 240
+      Z
+    " fill="#8b6cc9" opacity="0.4"/>
+    
+    <!-- Snout area -->
+    <path d="
+      M 85 240
+      L 90 290
+      L 120 280
+      L 120 230
+      L 85 240
+      Z
+    " fill="#9b4dca" opacity="0.3"/>
+    
+    <!-- Chest/mane curves -->
+    <path d="
+      M 256 350
+      L 200 370
+      L 160 400
+      L 135 430
+      L 175 445
+      L 220 450
+      L 256 450
+      L 256 350
+      Z
+    " fill="url(#wolfGradient)"/>
+    
+    <!-- Mane detail lines -->
+    <path d="
+      M 180 380
+      L 165 410
+    " stroke="#4a5568" stroke-width="2" fill="none" opacity="0.4"/>
+    <path d="
+      M 200 385
+      L 190 420
+    " stroke="#4a5568" stroke-width="2" fill="none" opacity="0.4"/>
+    <path d="
+      M 220 390
+      L 215 430
+    " stroke="#4a5568" stroke-width="2" fill="none" opacity="0.4"/>
+  </g>
+  
+  <!-- Left wolf eye -->
+  <ellipse cx="150" cy="195" rx="14" ry="11" fill="#1a1a3a"/>
+  <ellipse cx="146" cy="192" rx="5" ry="4" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- Left wolf nose -->
+  <ellipse cx="92" cy="265" rx="12" ry="9" fill="#1a1a3a"/>
+  
+  <!-- RIGHT WOLF (outline style) - Mirrored -->
+  <g fill="none" stroke="url(#outlineGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head outline -->
+    <path d="
+      M 256 95
+      L 282 75
+      L 307 40
+      L 312 85
+      L 337 75
+      L 332 110
+      L 367 125
+      L 397 150
+      L 417 190
+      L 427 240
+      L 422 290
+      L 402 330
+    "/>
+    
+    <!-- Ear -->
+    <path d="
+      M 307 40
+      L 322 55
+      L 317 90
+    "/>
+    
+    <!-- Ear interior detail -->
+    <path d="
+      M 312 60
+      L 318 80
+    "/>
+    
+    <!-- Snout to jaw -->
+    <path d="
+      M 417 190
+      L 427 240
+      L 422 290
+    "/>
+    
+    <!-- Neck and chest outline -->
+    <path d="
+      M 402 330
+      L 417 365
+      L 407 400
+      L 377 430
+      L 337 445
+      L 292 450
+      L 256 450
+    "/>
+    
+    <!-- Mane/chest detail curves -->
+    <path d="
+      M 290 380
+      L 310 410
+      L 320 440
+    "/>
+    <path d="
+      M 310 375
+      L 335 415
+    "/>
+    <path d="
+      M 330 365
+      L 355 400
+    "/>
+    
+    <!-- Face detail - cheek line -->
+    <path d="
+      M 367 125
+      L 380 160
+      L 400 200
+    "/>
+    
+    <!-- Forehead detail -->
+    <path d="
+      M 282 100
+      L 320 130
+      L 350 145
+    "/>
+  </g>
+  
+  <!-- Right wolf eye (outline) -->
+  <ellipse cx="362" cy="195" rx="14" ry="11" fill="none" stroke="url(#outlineGradient)" stroke-width="3.5"/>
+  <circle cx="362" cy="195" r="4" fill="url(#outlineGradient)" opacity="0.5"/>
+  
+  <!-- Right wolf nose (outline) -->
+  <ellipse cx="420" cy="265" rx="12" ry="9" fill="none" stroke="url(#outlineGradient)" stroke-width="3.5"/>
+</svg>

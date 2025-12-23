@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Generate timestamp version
+        id: version
+        run: |
+          VERSION=$(date +'%Y.%m.%d.%H%M')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## Gemini Desktop - Build ${{ steps.version.outputs.version }}
+            
+            **Build Date:** ${{ steps.version.outputs.version }}
+            
+            ### Downloads
+            - **Windows:** `Gemini-Desktop-win32-x64.zip`
+            - **macOS:** `Gemini-Desktop-darwin-x64.zip`
+            - **Linux:** `Gemini-Desktop-linux-x64.zip`
+            
+            ### Installation
+            1. Download the ZIP for your platform
+            2. Extract to any folder
+            3. Run `Gemini Desktop.exe` (Windows) or `Gemini Desktop` (macOS/Linux)
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-upload:
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update version in package.json
+        run: npm pkg set version=${{ needs.create-release.outputs.version }}
+
+      - name: Build app
+        run: npx electron-packager . "Gemini Desktop" --platform=${{ matrix.platform }} --arch=${{ matrix.arch }} --out=dist --overwrite --asar --app-version=${{ needs.create-release.outputs.version }}
+
+      - name: Create ZIP (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -Path "dist\Gemini Desktop-${{ matrix.platform }}-${{ matrix.arch }}\*" -DestinationPath "Gemini-Desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip"
+
+      - name: Create ZIP (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd dist
+          zip -r "../Gemini-Desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip" "Gemini Desktop-${{ matrix.platform }}-${{ matrix.arch }}"
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: Gemini-Desktop-${{ matrix.platform }}-${{ matrix.arch }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
