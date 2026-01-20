@@ -15,7 +15,7 @@ const legacySettingsPath = path.join(app.getPath('userData'), 'settings.json'); 
 const defaultSettings = {
   startMinimized: false,
   minimizeToTray: true,
-  startWithWindows: false
+  startAtLogin: false  // Cross-platform: works on Windows, macOS, and Linux
 };
 
 // Secure Storage Module - encrypts/decrypts sensitive data
@@ -175,16 +175,29 @@ function configureSecureSession() {
 // Security: Check if system encryption is available
 function checkEncryptionAvailable() {
   const available = safeStorage.isEncryptionAvailable();
+  const platform = process.platform;
   
   if (available) {
     console.log('✓ System encryption is available');
-    console.log('  - Settings will be encrypted using Windows DPAPI');
-    console.log('  - Data is tied to this Windows user account');
+    if (platform === 'win32') {
+      console.log('  - Settings will be encrypted using Windows DPAPI');
+      console.log('  - Data is tied to this Windows user account');
+    } else if (platform === 'darwin') {
+      console.log('  - Settings will be encrypted using macOS Keychain');
+      console.log('  - Data is tied to this macOS user account');
+    } else {
+      console.log('  - Settings will be encrypted using system keyring (libsecret)');
+      console.log('  - Data is tied to this Linux user account');
+    }
     return true;
   } else {
     console.warn('⚠ System encryption is NOT available');
     console.warn('  - Settings will be stored in plain text');
-    console.warn('  - Consider running on a newer OS or with proper keychain access');
+    if (platform === 'linux') {
+      console.warn('  - Install gnome-keyring or kwallet for encrypted storage');
+    } else {
+      console.warn('  - Consider running on a newer OS or with proper keychain access');
+    }
     return false;
   }
 }
@@ -235,11 +248,12 @@ function updateTrayMenu() {
     },
     { type: 'separator' },
     {
-      label: 'Start with Windows',
+      label: process.platform === 'win32' ? 'Start with Windows' : 
+             process.platform === 'darwin' ? 'Start at Login' : 'Start with System',
       type: 'checkbox',
-      checked: settings.startWithWindows,
+      checked: settings.startAtLogin,
       click: (menuItem) => {
-        settings.startWithWindows = menuItem.checked;
+        settings.startAtLogin = menuItem.checked;
         saveSettings(settings);
         updateAutoLaunch();
       }
@@ -275,13 +289,57 @@ function updateTrayMenu() {
   tray.setContextMenu(contextMenu);
 }
 
-// Update auto-launch setting
+// Update auto-launch setting (cross-platform)
 function updateAutoLaunch() {
-  app.setLoginItemSettings({
-    openAtLogin: settings.startWithWindows,
+  // Note: On Linux/SteamOS, this may require additional setup
+  // The .desktop file needs to be in ~/.config/autostart/
+  const loginSettings = {
+    openAtLogin: settings.startAtLogin,
     path: app.getPath('exe'),
     args: settings.startMinimized ? ['--hidden'] : []
-  });
+  };
+  
+  // On Linux, also handle autostart directory
+  if (process.platform === 'linux' && settings.startAtLogin) {
+    try {
+      const autostartDir = path.join(app.getPath('home'), '.config', 'autostart');
+      const desktopFile = path.join(autostartDir, 'gemini-desktop.desktop');
+      
+      if (!fs.existsSync(autostartDir)) {
+        fs.mkdirSync(autostartDir, { recursive: true });
+      }
+      
+      const desktopContent = `[Desktop Entry]
+Type=Application
+Name=Gemini Desktop
+Exec="${app.getPath('exe')}"${settings.startMinimized ? ' --hidden' : ''}
+Icon=${path.join(__dirname, 'assets', 'icon.png')}
+Comment=Standalone desktop app for Google Gemini
+Categories=Network;Chat;Utility;
+Terminal=false
+StartupWMClass=Gemini Desktop
+X-GNOME-Autostart-enabled=true
+`;
+      
+      fs.writeFileSync(desktopFile, desktopContent);
+      console.log('Created autostart entry for Linux');
+    } catch (error) {
+      console.error('Failed to create Linux autostart entry:', error);
+    }
+  } else if (process.platform === 'linux' && !settings.startAtLogin) {
+    // Remove autostart file if disabled
+    try {
+      const desktopFile = path.join(app.getPath('home'), '.config', 'autostart', 'gemini-desktop.desktop');
+      if (fs.existsSync(desktopFile)) {
+        fs.unlinkSync(desktopFile);
+        console.log('Removed autostart entry for Linux');
+      }
+    } catch (error) {
+      console.error('Failed to remove Linux autostart entry:', error);
+    }
+  }
+  
+  app.setLoginItemSettings(loginSettings);
 }
 
 function createWindow() {
